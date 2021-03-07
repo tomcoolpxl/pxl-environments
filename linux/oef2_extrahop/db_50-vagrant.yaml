@@ -1,0 +1,16 @@
+---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth1:
+      addresses:
+      - 10.0.50.11/24
+      gateway4: 10.0.50.10
+      nameservers:
+        addresses:
+        - 8.8.8.8
+        - 8.8.4.4
+    eth2:
+      addresses:
+      - 10.0.100.21/24

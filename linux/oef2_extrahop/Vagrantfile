@@ -1,0 +1,60 @@
+# The "2" in Vagrant.configure configures the configuration version
+Vagrant.configure("2") do |config|
+  config.vm.define "web" do |web|
+    web.vm.box = "hashicorp/bionic64"
+    web.vm.hostname = "web.local"
+    web.vm.network "private_network", ip: "10.0.50.1", hostname: true
+    web.vm.provider :virtualbox do |vb|
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    web.vm.provision "shell", inline: <<-SHELL
+      sudo apt install -y net-tools
+    SHELL
+  end
+
+  config.vm.define "db" do |db|
+    db.vm.box = "hashicorp/bionic64"
+    db.vm.hostname = "db.local"
+    db.vm.network "private_network", ip: "10.0.50.2", hostname: true
+    db.vm.network "private_network", ip: "10.0.100.1"
+    db.vm.provider :virtualbox do |vb|
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    db.vm.provision "shell", inline: <<-SHELL
+      sudo apt install -y net-tools
+      # remove default g/w
+      sudo ip route del 0/0
+      # set PasswordAuthentication to yes in sshd_config
+      sudo sed -re 's/^(PasswordAuthentication)([[:space:]]+)no/\1\2yes/' -i.`date -I` /etc/ssh/sshd_config
+      sudo systemctl restart sshd
+      # disable eth0
+      echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
+      sudo service network restart
+      sudo ifdown eth0
+    SHELL
+  end
+
+  config.vm.define "mon" do |mon|
+    mon.vm.box = "hashicorp/bionic64"
+    mon.vm.hostname = "mon.local"
+    mon.vm.network "private_network", ip: "10.0.100.1"
+    mon.vm.provider :virtualbox do |vb|
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    mon.vm.provision "shell", inline: <<-SHELL
+    sudo apt install -y net-tools
+    # remove default g/w
+    sudo ip route del 0/0
+    # set PasswordAuthentication to yes in sshd_config
+    sudo sed -re 's/^(PasswordAuthentication)([[:space:]]+)no/\1\2yes/' -i.`date -I` /etc/ssh/sshd_config
+    sudo systemctl restart sshd
+    # disable eth0
+    echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
+    sudo service network restart
+    sudo ifdown eth0
+  SHELL
+  end
+end
