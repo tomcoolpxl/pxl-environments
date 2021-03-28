@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./shared", "/vagrant_data"
 
   # Customize the disk size on the guest VM: (using vagrant-disksize plugin)
-  config.disksize.size = '50GB' 
+  config.disksize.size = '80GB'
 
     # Customize hostname of the guestVM 
   config.vm.hostname = "k3d-cluster"
